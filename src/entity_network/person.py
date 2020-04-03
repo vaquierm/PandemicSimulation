@@ -25,13 +25,14 @@ class PersonPlace(enum.Enum):
 
 class Person:
 
-    def __init__(self, person_id: int, community_id: int, travel_table: np.ndarray, transmit_probability: float, recovery_time: int, incubation_time: int):
+    def __init__(self, person_id: int, community_id: int, travel_table: np.ndarray, public_place_probability: float, transmit_probability: float, recovery_time: int, incubation_time: int):
         """
         Creates an instance of a person
         :param person_id: ID of the person
         :param community_id: The ID of the community the person currently is in
         :param travel_table: The proportion of which community the person is likely to travel to (The sum equals their probability to travel on a given tick)
-        :param transmit_probability: The probability that they have of transmitting or receiving the virus
+        :param public_place_probability: The probability that the person will go to the grocery store at a given simulation tick
+        :param transmit_probability: The probability that they have of transmitting or receiving the virus when interacting with someone
         :param recovery_time: Time in simulation ticks to recover after showing symptoms
         :param incubation_time: Time in simulation ticks for incubation period
         """
@@ -39,12 +40,14 @@ class Person:
         self.community_id = community_id
         self.travel_table = travel_table
         self.travel_probability = travel_table.sum()
+        self.public_place_probability = public_place_probability
         self.__sick_time = -1
         self.transmit_prob = transmit_probability
         self.recovery_time = recovery_time
         self.incubation_time = incubation_time
         self.place = PersonPlace.Regular
-        self.time_in_place = 0
+        self.time_in_place_remaining = -1
+        self.travel_source = False
 
     def tick(self):
         """
@@ -53,7 +56,8 @@ class Person:
         if self.__sick_time >= 0:
             self.__sick_time += 1
 
-        self.time_in_place += 1
+        if self.time_in_place_remaining >= 0:
+            self.time_in_place_remaining -= 1
 
     def get_state(self):
         """
@@ -69,12 +73,17 @@ class Person:
         else:
             return PersonState.Healthy
 
-    def set_place(self, new_place: PersonPlace.value):
+    def set_place(self, new_place: PersonPlace, time_in_place_remaining: int = -1):
+        """
+        Set the place state of the person
+        :param new_place: New place state
+        :param time_in_place_remaining: Time remaining in this place
+        """
         if self.place == new_place:
             raise Exception("The person is already in place: " + str(self.place))
 
+        self.time_in_place_remaining = time_in_place_remaining
         self.place = new_place
-        self.time_in_place = 0
 
     def infect(self):
         """
