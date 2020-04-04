@@ -75,6 +75,7 @@ class Communities:
         self.interaction_matrix = np.tril(self.interaction_matrix, -1)
 
         self.ticks_per_day = config.ticks_per_day
+        self.new_cases = 0
 
     def tick(self):
         """
@@ -166,6 +167,7 @@ class Communities:
                     transmit_prob *= 5
                 if random.random() < transmit_prob:
                     p_i.infect()
+                    self.new_cases += 1
             # If person j is healthy and person i isn't, there could be an infection
             elif (p_j.get_state() == PersonState.Healthy) and (p_i.get_state() == PersonState.Incubating or p_i.get_state() == PersonState.Sick):
                 transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
@@ -173,6 +175,7 @@ class Communities:
                     transmit_prob *= 5
                 if random.random() < transmit_prob:
                     p_j.infect()
+                    self.new_cases += 1
 
     def get_proportions(self):
         """
