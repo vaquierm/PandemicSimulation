@@ -15,11 +15,15 @@ class Simulation:
 
         simulation_done = False
         while not simulation_done:
+            if self.current_tick % self.ticks_per_day == 0:
+                print("Day", self.current_tick/self.ticks_per_day)
+                proportions = self.communities.get_proportions()
+                result.append(proportions)
+
+                if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 1:
+                    simulation_done = True
+
             self.communities.tick()
+            self.current_tick += 1
 
-            proportions = self.communities.get_proportions()
-            result.append(proportions)
-
-            if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 1:
-                simulation_done = True
 
