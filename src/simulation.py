@@ -11,14 +11,22 @@ class Simulation:
         self.communities = Communities(config)
 
     def start(self):
-        result = []
+        result = {
+            PersonState.Healthy: [],
+            PersonState.Incubating: [],
+            PersonState.Sick: [],
+            PersonState.Recovered: []
+        }
 
         simulation_done = False
         while not simulation_done:
             if self.current_tick % self.ticks_per_day == 0:
                 print("Day", self.current_tick/self.ticks_per_day)
                 proportions = self.communities.get_proportions()
-                result.append(proportions)
+                result[PersonState.Healthy].append(proportions[PersonState.Healthy])
+                result[PersonState.Incubating].append(proportions[PersonState.Incubating])
+                result[PersonState.Sick].append(proportions[PersonState.Sick])
+                result[PersonState.Recovered].append(proportions[PersonState.Recovered])
 
                 if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 0:
                     simulation_done = True
@@ -26,4 +34,4 @@ class Simulation:
             self.communities.tick()
             self.current_tick += 1
 
-
+        return result

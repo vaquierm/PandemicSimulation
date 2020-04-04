@@ -21,9 +21,6 @@ class Communities:
         self.n_people = config.number_of_communities * config.people_per_communities
         self.n_communities = config.number_of_communities
 
-        if self.n_people < 30:
-            raise Exception("The simulation must run with more than 100 people.")
-
         # Create the person objects that represents our total population
         for i in range(self.n_people):
             community_id = int(i/config.people_per_communities)
@@ -40,9 +37,13 @@ class Communities:
                 incubation_time=config.incubation_time_distribution()
             )
 
-            # With a 2% chance, the individual will start as infected
-            if i == 0 or random.random() < 0.02:
-                new_person.infect()
+            # Infect people in community 0 so that 2% of the total population is infected
+            if community_id == 0:
+                if i == 0:
+                    new_person.infect()
+                infected_p = 2 * self.n_communities / self.n_people
+                if random.random() < infected_p:
+                    new_person.infect()
 
             self.people.append(new_person)
 
@@ -162,14 +163,14 @@ class Communities:
             if (p_i.get_state() == PersonState.Healthy) and (p_j.get_state() == PersonState.Incubating or p_j.get_state() == PersonState.Sick):
                 transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
                 if p_j.place != PersonPlace.Regular:
-                    transmit_prob *= 3
+                    transmit_prob *= 5
                 if random.random() < transmit_prob:
                     p_i.infect()
             # If person j is healthy and person i isn't, there could be an infection
             elif (p_j.get_state() == PersonState.Healthy) and (p_i.get_state() == PersonState.Incubating or p_i.get_state() == PersonState.Sick):
                 transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
                 if p_j.place != PersonPlace.Regular:
-                    transmit_prob *= 3
+                    transmit_prob *= 5
                 if random.random() < transmit_prob:
                     p_j.infect()
 
@@ -185,5 +186,10 @@ class Communities:
         }
         for person in self.people:
             prop[person.get_state()] += 1
+
+        prop[PersonState.Healthy] /= self.n_people
+        prop[PersonState.Sick] /= self.n_people
+        prop[PersonState.Incubating] /= self.n_people
+        prop[PersonState.Recovered] /= self.n_people
 
         return prop
