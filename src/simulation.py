@@ -20,7 +20,7 @@ class Simulation:
                 proportions = self.communities.get_proportions()
                 result.append(proportions)
 
-                if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 1:
+                if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 0:
                     simulation_done = True
 
             self.communities.tick()
