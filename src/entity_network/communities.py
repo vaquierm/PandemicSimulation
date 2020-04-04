@@ -35,10 +35,14 @@ class Communities:
                 community_id=community_id,
                 travel_table=travel_table,
                 public_place_probability=config.public_place_prob_distribution(),
-                transmit_probability=config.travel_prob_distribution(),
+                transmit_probability=config.transmit_prob_distribution(),
                 recovery_time=config.recovery_time_distribution(),
                 incubation_time=config.incubation_time_distribution()
             )
+
+            # With a 2% chance, the individual will start as infected
+            if i == 0 or random.random() < 0.02:
+                new_person.infect()
 
             self.people.append(new_person)
 
@@ -131,7 +135,7 @@ class Communities:
                 interactions[ind[0:][::2], ind[1:][::2]] *= self.n_people / (public_space_count - 1) / self.n_communities
             travel_hub_count = len(counts[i][PersonPlace.TravelHub])
             if travel_hub_count > 1:
-                arr = np.array(counts[i][PersonPlace.PublicSpace])
+                arr = np.array(counts[i][PersonPlace.TravelHub])
                 ind = np.array(np.meshgrid(arr, arr)).T.reshape(-1)
                 interactions[ind[0:][::2], ind[1:][::2]] *= self.n_people / (travel_hub_count - 1) / self.n_communities
 
@@ -148,22 +152,22 @@ class Communities:
         for i in range(index_i.shape[0]):
             p_i = self.people[index_i[i]]
             p_j = self.people[index_j[i]]
+            if p_i.community_id != p_j.community_id or p_i.place != p_j.place:
+                continue
             if p_i.get_state() == PersonState.Recovered or p_j.get_state() == PersonState.Recovered:
                 continue
             if p_i.get_state() == p_j.get_state():
                 continue
-            if p_i.place != p_j.place:
-                continue
             # If person i is healthy and person j isn't, there could be an infection
             if (p_i.get_state() == PersonState.Healthy) and (p_j.get_state() == PersonState.Incubating or p_j.get_state() == PersonState.Sick):
-                transmit_prob = p_i.transmit_prob * p_j.transmit_prob / 2
+                transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
                 if p_j.place != PersonPlace.Regular:
                     transmit_prob *= 3
                 if random.random() < transmit_prob:
                     p_i.infect()
             # If person j is healthy and person i isn't, there could be an infection
             elif (p_j.get_state() == PersonState.Healthy) and (p_i.get_state() == PersonState.Incubating or p_i.get_state() == PersonState.Sick):
-                transmit_prob = p_i.transmit_prob * p_j.transmit_prob / 2
+                transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
                 if p_j.place != PersonPlace.Regular:
                     transmit_prob *= 3
                 if random.random() < transmit_prob:
