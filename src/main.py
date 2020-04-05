@@ -2,7 +2,7 @@ from src.config import Config
 from src.simulation import Simulation
 import src.prob_distribution as dist
 from src.visualization import plot_simulation_results
-from src.triggers.trigger import EventTrigger
+from src.triggers.reduction_trigger import ReductionEventTrigger
 
 if __name__ == '__main__':
     ticks_per_day = 48
