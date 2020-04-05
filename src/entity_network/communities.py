@@ -74,6 +74,11 @@ class Communities:
 
         self.interaction_matrix = np.tril(self.interaction_matrix, -1)
 
+        distancing_factor = np.vectorize(lambda x: x / config.social_distancing_trigger.reduction_factor_distribution())
+        self.social_dist_interaction_matrix = distancing_factor(self.interaction_matrix)
+
+        self.social_dist_trigger = config.social_distancing_trigger
+
         self.ticks_per_day = config.ticks_per_day
         self.new_cases = 0
 
@@ -126,7 +131,10 @@ class Communities:
         # Furthermore within the same community, we only want people in the same public space or travel hub
 
         # First make a copy of the infection matrix
-        interactions = self.interaction_matrix.copy()
+        if self.social_dist_trigger.enabled:
+            interactions = self.social_dist_interaction_matrix.copy()
+        else:
+            interactions = self.interaction_matrix.copy()
 
         # Scale the rows and columns for public places and travel
         for i in range(self.n_communities):
@@ -134,12 +142,12 @@ class Communities:
             if public_space_count > 1:
                 arr = np.array(counts[i][PersonPlace.PublicSpace])
                 ind = np.array(np.meshgrid(arr, arr)).T.reshape(-1)
-                interactions[ind[0:][::2], ind[1:][::2]] *= self.n_people / (public_space_count - 1) / self.n_communities
+                interactions[ind[0:][::2], ind[1:][::2]] *= 2 * self.n_people / (public_space_count - 1) / self.n_communities
             travel_hub_count = len(counts[i][PersonPlace.TravelHub])
             if travel_hub_count > 1:
                 arr = np.array(counts[i][PersonPlace.TravelHub])
                 ind = np.array(np.meshgrid(arr, arr)).T.reshape(-1)
-                interactions[ind[0:][::2], ind[1:][::2]] *= self.n_people / (travel_hub_count - 1) / self.n_communities
+                interactions[ind[0:][::2], ind[1:][::2]] *= 2 * self.n_people / (travel_hub_count - 1) / self.n_communities
 
         # Determine what interactions happen
         interactions_happen = np.random.uniform(low=0, high=1, size=interactions.shape)

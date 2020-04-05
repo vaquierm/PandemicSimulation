@@ -1,4 +1,5 @@
 # This file contains the Simulation configuration class which contains all data to start a simulation
+from src.triggers.trigger import EventTrigger
 
 
 class Config:
@@ -12,7 +13,8 @@ class Config:
                  recovery_time_distribution,
                  incubation_time_distribution,
                  public_place_prob_distribution,
-                 public_place_time_distribution
+                 public_place_time_distribution,
+                 social_distancing_trigger: EventTrigger = None,
                  ):
         if ticks_per_day <= 0:
             raise Exception("There must be at least 1 tick per day")
@@ -29,3 +31,4 @@ class Config:
         self.incubation_time_distribution = incubation_time_distribution
         self.public_place_prob_distribution = public_place_prob_distribution
         self.public_place_time_distribution = public_place_time_distribution
+        self.social_distancing_trigger = social_distancing_trigger

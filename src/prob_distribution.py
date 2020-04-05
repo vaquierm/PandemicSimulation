@@ -2,6 +2,10 @@
 import random
 
 
+def gaussian(mean: float, std: float):
+    return lambda: random.gauss(mean, std)
+
+
 def gaussian_time_in_ticks(mean: float, std: float):
     return lambda: round(max(random.gauss(mean, std), 0))
 
