@@ -15,6 +15,7 @@ class Config:
                  public_place_prob_distribution,
                  public_place_time_distribution,
                  social_distancing_trigger: EventTrigger = None,
+                 travel_restrictions_trigger: EventTrigger = None
                  ):
         if ticks_per_day <= 0:
             raise Exception("There must be at least 1 tick per day")
@@ -48,3 +49,4 @@ class Config:
 
         # Triggers
         self.social_distancing_trigger = social_distancing_trigger
+        self.travel_restrictions_trigger = travel_restrictions_trigger

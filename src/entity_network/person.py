@@ -25,7 +25,7 @@ class PersonPlace(enum.Enum):
 
 class Person:
 
-    def __init__(self, person_id: int, community_id: int, travel_table: np.ndarray, public_place_probability: float, transmit_probability: float, recovery_time: int, incubation_time: int):
+    def __init__(self, person_id: int, community_id: int, travel_table: np.ndarray, public_place_probability: float, transmit_probability: float, recovery_time: int, incubation_time: int, travel_reduction_factor: float):
         """
         Creates an instance of a person
         :param person_id: ID of the person
@@ -35,6 +35,7 @@ class Person:
         :param transmit_probability: The probability that they have of transmitting or receiving the virus when interacting with someone
         :param recovery_time: Time in simulation ticks to recover after showing symptoms
         :param incubation_time: Time in simulation ticks for incubation period
+        :param travel_reduction_factor: Factor by which this person reduces their travel if a travel restriction is put in place
         """
         self.id = person_id
         self.community_id = community_id
@@ -49,6 +50,7 @@ class Person:
         self.time_in_place_remaining = -1
         self.travel_source = False
         self.infection_count = 0
+        self.travel_reduction_factor = travel_reduction_factor
 
     def tick(self):
         """
