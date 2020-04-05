@@ -58,7 +58,7 @@ class EventTrigger:
             raise Exception("This event cannot be triggered")
         self.enabled = True
         self.trigger_cooldown = 2
-        self.start_percentages.pop()
+        self.start_percentages.pop(0)
 
     def disable(self):
         """
@@ -68,4 +68,4 @@ class EventTrigger:
             raise Exception("This event cannot be disabled")
         self.enabled = False
         self.trigger_cooldown = 2
-        self.end_percentages.pop()
+        self.end_percentages.pop(0)

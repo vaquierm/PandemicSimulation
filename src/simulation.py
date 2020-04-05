@@ -17,7 +17,8 @@ class Simulation:
             PersonState.Sick: [],
             PersonState.Recovered: [],
             'new_cases': [],
-            'average_new_cases': []
+            'average_new_cases': [],
+            'Social distancing': {'enable': [], 'disable': []}
         }
 
         simulation_done = False
@@ -33,7 +34,7 @@ class Simulation:
                 self.communities.new_cases = 0
 
                 # Check if any of the triggers must be enabled
-                self.__check_triggers(proportions)
+                self.__check_triggers(proportions, result, int(self.current_tick/self.ticks_per_day))
 
                 # Check if the simulation should end
                 if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 0:
@@ -46,13 +47,15 @@ class Simulation:
 
         return result
 
-    def __check_triggers(self, proportions):
-        p_infected = proportions[PersonState.Incubating] + proportions[PersonState.Sick]
+    def __check_triggers(self, proportions, result, day):
+        p_infected = proportions[PersonState.Sick]
         # Check if social distancing must be triggered
         if (not self.communities.social_dist_trigger.enabled) and p_infected > self.communities.social_dist_trigger.enable_at():
             self.communities.social_dist_trigger.enable()
+            result['Social distancing']['enable'].append(day)
         elif self.communities.social_dist_trigger.enabled and p_infected < self.communities.social_dist_trigger.disable_at():
             self.communities.social_dist_trigger.disable()
+            result['Social distancing']['disable'].append(day)
 
     def __update_day_results(self, proportions, result):
         result[PersonState.Healthy].append(proportions[PersonState.Healthy])
