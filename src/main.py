@@ -15,7 +15,7 @@ if __name__ == '__main__':
                     incubation_time_distribution=dist.gaussian_time_in_days(10, 4, ticks_per_day),
                     public_place_prob_distribution=dist.gaussian_prob(4, 1, ticks_per_day),
                     public_place_time_distribution=dist.gaussian_time_in_ticks(2, 1),
-                    social_distancing_trigger=EventTrigger([0.1], [], dist.multi_dist([dist.gaussian(5, 1), dist.constant(0.2)], [0.8, 0.2]))
+                    travel_restrictions_trigger=EventTrigger([0.01], [], dist.multi_dist([dist.gaussian(5, 1), dist.constant(0.2)], [0.8, 0.2]))
                     )
 
     sim = Simulation(config)

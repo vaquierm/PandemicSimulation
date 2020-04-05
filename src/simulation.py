@@ -9,6 +9,7 @@ class Simulation:
         self.current_tick = 0
         self.ticks_per_day = config.ticks_per_day
         self.communities = Communities(config)
+        self.infection_free_communities = list(range(1, config.number_of_communities))
 
     def start(self):
         result = {
@@ -18,7 +19,9 @@ class Simulation:
             PersonState.Recovered: [],
             'new_cases': [],
             'average_new_cases': [],
-            'Social distancing': {'enable': [], 'disable': []}
+            'Social distancing': {'enable': [], 'disable': []},
+            'Travel restrictions': {'enable': [], 'disable': []},
+            'First infections': []
         }
 
         simulation_done = False
@@ -57,6 +60,21 @@ class Simulation:
             elif self.communities.social_dist_trigger.enabled and p_infected < self.communities.social_dist_trigger.disable_at():
                 self.communities.social_dist_trigger.disable()
                 result['Social distancing']['disable'].append(day)
+
+        # Check if travel restrictions must be triggered
+        if self.communities.travel_restrictions_trigger is not None:
+            if (not self.communities.travel_restrictions_trigger.enabled) and p_infected > self.communities.travel_restrictions_trigger.enable_at():
+                self.communities.travel_restrictions_trigger.enable()
+                result['Travel restrictions']['enable'].append(day)
+            elif self.communities.travel_restrictions_trigger.enabled and p_infected < self.communities.travel_restrictions_trigger.disable_at():
+                self.communities.travel_restrictions_trigger.disable()
+                result['Travel restrictions']['disable'].append(day)
+            # Check if a new community got infected
+            infection_free = self.communities.get_infection_free_communities()
+            for i in self.infection_free_communities:
+                if i not in infection_free:
+                    result['First infections'].append((i, day))
+            self.infection_free_communities = infection_free
 
     def __update_day_results(self, proportions, result):
         result[PersonState.Healthy].append(proportions[PersonState.Healthy])

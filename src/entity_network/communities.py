@@ -27,6 +27,8 @@ class Communities:
 
             travel_table = random_travel_table(config.travel_prob_distribution(), config.number_of_communities)
 
+            travel_reduction_factor = 1 if (config.travel_restrictions_trigger is None) else config.travel_restrictions_trigger.reduction_factor_distribution()
+
             new_person = Person(
                 person_id=i,
                 community_id=community_id,
@@ -34,7 +36,8 @@ class Communities:
                 public_place_probability=config.public_place_prob_distribution(),
                 transmit_probability=config.transmit_prob_distribution(),
                 recovery_time=config.recovery_time_distribution(),
-                incubation_time=config.incubation_time_distribution()
+                incubation_time=config.incubation_time_distribution(),
+                travel_reduction_factor=travel_reduction_factor
             )
 
             # Infect people in community 0 so that 2% of the total population is infected
@@ -86,6 +89,7 @@ class Communities:
 
         # Define the trigger used for social distancing
         self.social_dist_trigger = config.social_distancing_trigger
+        self.travel_restrictions_trigger = config.travel_restrictions_trigger
 
         self.ticks_per_day = config.ticks_per_day
         self.new_cases = 0
@@ -107,8 +111,10 @@ class Communities:
 
             # First see if the person needs to travel
             if person.place == PersonPlace.Regular and random.random() < person.travel_probability:
-                person.set_place(PersonPlace.TravelHub, round(self.ticks_per_day / 12))
-                person.travel_source = True
+                # Check if travel restrictions are enabled
+                if (self.travel_restrictions_trigger is None) or (not self.travel_restrictions_trigger.enabled):
+                    person.set_place(PersonPlace.TravelHub, round(self.ticks_per_day / 12))
+                    person.travel_source = True
 
             # Then check if the person is done being at the airport
             if person.place == PersonPlace.TravelHub and person.time_in_place_remaining <= 0:
@@ -194,6 +200,20 @@ class Communities:
                     p_j.infect()
                     p_i.infection_count += 1
                     self.new_cases += 1
+
+    def get_infection_free_communities(self):
+        """
+        Get all community IDs that are infection free
+        :return: List of infection free community IDs
+        """
+        infection_free = list(range(self.n_communities))
+        with_infection = []
+        for p in self.people:
+            if p.community_id not in with_infection and p.get_state() != PersonState.Healthy:
+                with_infection.append(p.community_id)
+        for i in with_infection:
+            infection_free.remove(i)
+        return infection_free
 
     def get_proportions(self):
         """
