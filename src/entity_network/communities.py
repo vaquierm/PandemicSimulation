@@ -38,11 +38,11 @@ class Communities:
             )
 
             # Infect people in community 0 so that 2% of the total population is infected
+            percent_infected_start = 0.02
             if community_id == 0:
                 if i == 0:
                     new_person.infect()
-                infected_p = 2 * self.n_communities / self.n_people
-                if random.random() < infected_p:
+                elif random.random() < 100 * percent_infected_start * self.n_communities / self.n_people:
                     new_person.infect()
 
             self.people.append(new_person)
@@ -75,11 +75,12 @@ class Communities:
         self.interaction_matrix = np.tril(self.interaction_matrix, -1)
 
         # Create an alternate social distancing interaction matrix
-        distancing_factor_matrix = np.zeros(self.interaction_matrix.shape)
-        for i in range(self.n_people):
-            dist_factor_i = config.social_distancing_trigger.reduction_factor_distribution()
-            distancing_factor_matrix[i, :] = dist_factor_i
-        distancing_factor_matrix = (distancing_factor_matrix + distancing_factor_matrix.T) / 2
+        distancing_factor_matrix = np.ones(self.interaction_matrix.shape)
+        if config.social_distancing_trigger != None:
+            for i in range(self.n_people):
+                dist_factor_i = config.social_distancing_trigger.reduction_factor_distribution()
+                distancing_factor_matrix[i, :] = dist_factor_i
+            distancing_factor_matrix = (distancing_factor_matrix + distancing_factor_matrix.T) / 2
 
         self.social_dist_interaction_matrix = self.interaction_matrix / distancing_factor_matrix
 
@@ -138,7 +139,7 @@ class Communities:
         # Furthermore within the same community, we only want people in the same public space or travel hub
 
         # First make a copy of the infection matrix
-        if self.social_dist_trigger.enabled:
+        if (self.social_dist_trigger is not None) and self.social_dist_trigger.enabled:
             interactions = self.social_dist_interaction_matrix.copy()
         else:
             interactions = self.interaction_matrix.copy()

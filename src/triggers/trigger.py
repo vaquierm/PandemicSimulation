@@ -25,6 +25,8 @@ class EventTrigger:
         self.start_percentages = start_percentages
         self.end_percentages = end_percentages
         self.reduction_factor_distribution = reduction_factor_distribution
+        if type(lambda: 0) != type(reduction_factor_distribution):
+            raise Exception("The reduction factor distribution must be a lambda")
         self.enabled = False
         self.trigger_cooldown = 3
 

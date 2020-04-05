@@ -50,12 +50,13 @@ class Simulation:
     def __check_triggers(self, proportions, result, day):
         p_infected = proportions[PersonState.Sick]
         # Check if social distancing must be triggered
-        if (not self.communities.social_dist_trigger.enabled) and p_infected > self.communities.social_dist_trigger.enable_at():
-            self.communities.social_dist_trigger.enable()
-            result['Social distancing']['enable'].append(day)
-        elif self.communities.social_dist_trigger.enabled and p_infected < self.communities.social_dist_trigger.disable_at():
-            self.communities.social_dist_trigger.disable()
-            result['Social distancing']['disable'].append(day)
+        if self.communities.social_dist_trigger is not None:
+            if (not self.communities.social_dist_trigger.enabled) and p_infected > self.communities.social_dist_trigger.enable_at():
+                self.communities.social_dist_trigger.enable()
+                result['Social distancing']['enable'].append(day)
+            elif self.communities.social_dist_trigger.enabled and p_infected < self.communities.social_dist_trigger.disable_at():
+                self.communities.social_dist_trigger.disable()
+                result['Social distancing']['disable'].append(day)
 
     def __update_day_results(self, proportions, result):
         result[PersonState.Healthy].append(proportions[PersonState.Healthy])
