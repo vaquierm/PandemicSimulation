@@ -48,4 +48,27 @@ class Simulation:
             self.communities.tick()
             self.current_tick += 1
 
+        result['R'] = self.__calculate_reproductive_rate()
+
         return result
+
+    def __calculate_reproductive_rate(self):
+        total_days = int(self.current_tick / self.ticks_per_day) + 1
+        groups = []
+        for i in range(total_days):
+            groups.append([])
+
+        for person in self.communities.people:
+            if person.sick_time < 0:
+                continue
+            infected_day = int((self.current_tick - person.sick_time) / self.ticks_per_day)
+            for i in range(infected_day, infected_day + int((person.incubation_time + person.recovery_time) / self.ticks_per_day)):
+                groups[i].append(person.infection_count)
+
+        for i in range(total_days):
+            if len(groups[i]) == 0:
+                groups[i] = 0
+            else:
+                groups[i] = sum(groups[i]) / len(groups[i])
+
+        return groups

@@ -167,6 +167,7 @@ class Communities:
                     transmit_prob *= 5
                 if random.random() < transmit_prob:
                     p_i.infect()
+                    p_j.infection_count += 1
                     self.new_cases += 1
             # If person j is healthy and person i isn't, there could be an infection
             elif (p_j.get_state() == PersonState.Healthy) and (p_i.get_state() == PersonState.Incubating or p_i.get_state() == PersonState.Sick):
@@ -175,6 +176,7 @@ class Communities:
                     transmit_prob *= 5
                 if random.random() < transmit_prob:
                     p_j.infect()
+                    p_i.infection_count += 1
                     self.new_cases += 1
 
     def get_proportions(self):
