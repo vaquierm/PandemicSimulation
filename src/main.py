@@ -9,13 +9,14 @@ if __name__ == '__main__':
     config = Config(ticks_per_day=ticks_per_day,
                     number_of_communities=3,
                     people_per_communities=100,
-                    transmit_prob_distribution=dist.gaussian_prob(3, 0.3, ticks_per_day),
+                    transmit_prob_distribution=dist.gaussian_prob(8, 1, ticks_per_day),
                     travel_prob_distribution=dist.gaussian_prob(40, 2, ticks_per_day),
                     recovery_time_distribution=dist.gaussian_time_in_days(14, 3, ticks_per_day),
-                    incubation_time_distribution=dist.gaussian_time_in_days(10, 4, ticks_per_day),
+                    incubation_time_distribution=dist.gaussian_time_in_days(11, 3, ticks_per_day),
                     public_place_prob_distribution=dist.gaussian_prob(4, 1, ticks_per_day),
-                    public_place_time_distribution=dist.gaussian_time_in_ticks(2, 1),
-                    travel_restrictions_trigger=EventTrigger([0.01], [], dist.multi_dist([dist.gaussian(5, 1), dist.constant(0.2)], [0.8, 0.2]))
+                    public_place_time_distribution=dist.gaussian_time_in_ticks(1, 0.2),
+                    social_distancing_trigger=None,#EventTrigger([0.1], [0.05], dist.gaussian(5, 1)),
+                    reduced_public_place_trips_trigger=None#EventTrigger([0.05], [], dist.multi_dist([dist.gaussian(5, 1), dist.constant(5)], [0.8, 0.2]))
                     )
 
     sim = Simulation(config)

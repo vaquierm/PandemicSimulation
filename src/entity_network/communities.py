@@ -21,6 +21,8 @@ class Communities:
         self.n_people = config.number_of_communities * config.people_per_communities
         self.n_communities = config.number_of_communities
 
+        initial_transmit_prob = np.array([config.transmit_prob_distribution() for _ in range(1000)]).mean()
+
         # Create the person objects that represents our total population
         for i in range(self.n_people):
             community_id = int(i/config.people_per_communities)
@@ -28,6 +30,7 @@ class Communities:
             travel_table = random_travel_table(config.travel_prob_distribution(), config.number_of_communities)
 
             travel_reduction_factor = 1 if (config.travel_restrictions_trigger is None) else config.travel_restrictions_trigger.reduction_factor_distribution()
+            reduced_public_place_factor = 1 if (config.reduced_public_place_trips_trigger is None) else config.reduced_public_place_trips_trigger.reduction_factor_distribution()
 
             new_person = Person(
                 person_id=i,
@@ -37,7 +40,8 @@ class Communities:
                 transmit_probability=config.transmit_prob_distribution(),
                 recovery_time=config.recovery_time_distribution(),
                 incubation_time=config.incubation_time_distribution(),
-                travel_reduction_factor=travel_reduction_factor
+                travel_reduction_factor=travel_reduction_factor,
+                reduced_public_place_trips_factor=reduced_public_place_factor
             )
 
             # Infect people in community 0 so that 2% of the total population is infected
@@ -45,8 +49,10 @@ class Communities:
             if community_id == 0:
                 if i == 0:
                     new_person.infect()
+                    new_person.transmit_prob = initial_transmit_prob
                 elif random.random() < 100 * percent_infected_start * self.n_communities / self.n_people:
                     new_person.infect()
+                    new_person.transmit_prob = initial_transmit_prob
 
             self.people.append(new_person)
 
@@ -79,7 +85,7 @@ class Communities:
 
         # Create an alternate social distancing interaction matrix
         distancing_factor_matrix = np.ones(self.interaction_matrix.shape)
-        if config.social_distancing_trigger != None:
+        if config.social_distancing_trigger is not None:
             for i in range(self.n_people):
                 dist_factor_i = config.social_distancing_trigger.reduction_factor_distribution()
                 distancing_factor_matrix[i, :] = dist_factor_i
@@ -87,9 +93,10 @@ class Communities:
 
         self.social_dist_interaction_matrix = self.interaction_matrix / distancing_factor_matrix
 
-        # Define the trigger used for social distancing
+        # Define the triggers
         self.social_dist_trigger = config.social_distancing_trigger
         self.travel_restrictions_trigger = config.travel_restrictions_trigger
+        self.reduced_public_place_trips_trigger = config.reduced_public_place_trips_trigger
 
         self.ticks_per_day = config.ticks_per_day
         self.new_cases = 0
@@ -110,11 +117,13 @@ class Communities:
             person = self.people[i]
 
             # First see if the person needs to travel
-            if person.place == PersonPlace.Regular and random.random() < person.travel_probability:
+            travel_probability = person.travel_probability
+            if (self.travel_restrictions_trigger is not None) and self.travel_restrictions_trigger.enabled:
+                travel_probability /= person.travel_reduction_factor
+            if person.place == PersonPlace.Regular and random.random() < travel_probability:
                 # Check if travel restrictions are enabled
-                if (self.travel_restrictions_trigger is None) or (not self.travel_restrictions_trigger.enabled):
-                    person.set_place(PersonPlace.TravelHub, round(self.ticks_per_day / 12))
-                    person.travel_source = True
+                person.set_place(PersonPlace.TravelHub, round(self.ticks_per_day / 12))
+                person.travel_source = True
 
             # Then check if the person is done being at the airport
             if person.place == PersonPlace.TravelHub and person.time_in_place_remaining <= 0:
@@ -128,7 +137,10 @@ class Communities:
                     person.set_place(PersonPlace.Regular)
 
             # The check if the person needs to go to the public place
-            if person.place == PersonPlace.Regular and random.random() < person.public_place_probability:
+            public_place_probability = person.public_place_probability
+            if (self.reduced_public_place_trips_trigger is not None) and self.reduced_public_place_trips_trigger.enabled:
+                public_place_probability /= person.reduced_public_place_trips_factor
+            if person.place == PersonPlace.Regular and random.random() < public_place_probability:
                 person.set_place(PersonPlace.PublicSpace, self.public_place_time_dist())
 
             # Check if anyone is coming out of the grocery store
@@ -184,18 +196,18 @@ class Communities:
                 continue
             # If person i is healthy and person j isn't, there could be an infection
             if (p_i.get_state() == PersonState.Healthy) and (p_j.get_state() == PersonState.Incubating or p_j.get_state() == PersonState.Sick):
-                transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
+                transmit_prob = (p_i.transmit_prob + p_j.transmit_prob)
                 if p_j.place != PersonPlace.Regular:
-                    transmit_prob *= 5
+                    transmit_prob *= 4
                 if random.random() < transmit_prob:
                     p_i.infect()
                     p_j.infection_count += 1
                     self.new_cases += 1
             # If person j is healthy and person i isn't, there could be an infection
             elif (p_j.get_state() == PersonState.Healthy) and (p_i.get_state() == PersonState.Incubating or p_i.get_state() == PersonState.Sick):
-                transmit_prob = (p_i.transmit_prob + p_j.transmit_prob) / 2
+                transmit_prob = 1.25 * (p_i.transmit_prob + p_j.transmit_prob)
                 if p_j.place != PersonPlace.Regular:
-                    transmit_prob *= 5
+                    transmit_prob *= 4
                 if random.random() < transmit_prob:
                     p_j.infect()
                     p_i.infection_count += 1
