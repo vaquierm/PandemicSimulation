@@ -22,6 +22,7 @@ def __plot_all_triggers(results):
     __plot_trigger(results, 'Social distancing')
     __plot_trigger(results, 'Travel restrictions')
     __plot_trigger(results, 'Reduced public place trips')
+    __plot_trigger(results, 'Testing and quarantine')
     _, y_max = plt.gca().get_ylim()
     if 1 < y_max < 1.1:
         y_max = 1
@@ -36,11 +37,13 @@ def plot_simulation_results(results: dict):
     Plot the results of the simulation
     :param results: Simulation results dictionary returned by the start method of the simulation
     """
-    plt.stackplot(range(len(results[PersonState.Healthy])),
-                  [results[PersonState.Incubating], results[PersonState.Sick],
-                   results[PersonState.Healthy], results[PersonState.Recovered]],
-                  labels=['Asymptomatic', 'Symptomatic', 'Healthy', 'Recovered'],
-                  alpha=0.8, colors=['darkorange', 'firebrick', 'steelblue', 'darkgrey'])
+    data = [results[PersonState.Quarantined], results[PersonState.Sick], results[PersonState.Incubating], results[PersonState.Healthy], results[PersonState.Recovered]]
+    labels = ['Quarantined', 'Symptomatic', 'Asymptomatic', 'Healthy', 'Recovered']
+    colors = ['lightpink', 'firebrick', 'darkorange', 'steelblue', 'darkgrey']
+
+    plt.stackplot(range(len(results[PersonState.Healthy])), data,
+                  labels=labels,
+                  alpha=0.8, colors=colors)
     plt.legend(loc='upper right')
     plt.xlabel('Days')
     plt.ylabel('Percentage of population')

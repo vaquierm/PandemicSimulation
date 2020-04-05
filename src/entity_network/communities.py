@@ -31,6 +31,7 @@ class Communities:
 
             travel_reduction_factor = 1 if (config.travel_restrictions_trigger is None) else config.travel_restrictions_trigger.reduction_factor_distribution()
             reduced_public_place_factor = 1 if (config.reduced_public_place_trips_trigger is None) else config.reduced_public_place_trips_trigger.reduction_factor_distribution()
+            time_to_test = -1 if (config.testing_trigger is None or random.random() < config.testing_trigger.unsuccessful_test_prob_distribution()) else config.testing_trigger.time_to_test_distribution()
 
             new_person = Person(
                 person_id=i,
@@ -41,7 +42,9 @@ class Communities:
                 recovery_time=config.recovery_time_distribution(),
                 incubation_time=config.incubation_time_distribution(),
                 travel_reduction_factor=travel_reduction_factor,
-                reduced_public_place_trips_factor=reduced_public_place_factor
+                reduced_public_place_trips_factor=reduced_public_place_factor,
+                time_to_test=time_to_test,
+                testing_trigger=config.testing_trigger
             )
 
             # Infect people in community 0 so that 2% of the total population is infected
@@ -97,6 +100,7 @@ class Communities:
         self.social_dist_trigger = config.social_distancing_trigger
         self.travel_restrictions_trigger = config.travel_restrictions_trigger
         self.reduced_public_place_trips_trigger = config.reduced_public_place_trips_trigger
+        self.testing_trigger = config.testing_trigger
 
         self.ticks_per_day = config.ticks_per_day
         self.new_cases = 0
@@ -235,7 +239,8 @@ class Communities:
             PersonState.Healthy: 0,
             PersonState.Incubating: 0,
             PersonState.Sick: 0,
-            PersonState.Recovered: 0
+            PersonState.Recovered: 0,
+            PersonState.Quarantined: 0
         }
         for person in self.people:
             prop[person.get_state()] += 1
@@ -244,5 +249,6 @@ class Communities:
         prop[PersonState.Sick] /= self.n_people
         prop[PersonState.Incubating] /= self.n_people
         prop[PersonState.Recovered] /= self.n_people
+        prop[PersonState.Quarantined] /= self.n_people
 
         return prop

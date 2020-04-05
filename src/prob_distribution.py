@@ -65,7 +65,17 @@ def constant_time_in_days(days: float, ticks_per_day:int):
     return lambda: round(max(days * ticks_per_day, 0))
 
 
-def gaussian_prob(mean_days_per_event: float, std_days_per_event: float, ticks_per_day: int):
+def gaussian_prob(mean: float, std: float):
+    """
+    Return a lambda expression that returns a gaussian distribution of probabilities (range 0 to 1)
+    :param mean: Mean probability
+    :param std: standard deviation of probabilities
+    :return: Lambda expression fitting parameters
+    """
+    return lambda: min(1, max(0, random.gauss(mean, std)))
+
+
+def gaussian_prob_in_days_per_event(mean_days_per_event: float, std_days_per_event: float, ticks_per_day: int):
     """
     Return a lambda expression that returns a distributions of probabilities of an event happening at any given tick
     Example: mean=10, std=2 We expect an event to occur on average every 10 days with a standard deviation of 2 days
@@ -78,5 +88,5 @@ def gaussian_prob(mean_days_per_event: float, std_days_per_event: float, ticks_p
             ticks_per_day * mean_days_per_event * mean_days_per_event))))
 
 
-def constant_prob(days_per_event: float, ticks_per_day: int):
+def constant_prob_in_days_per_event(days_per_event: float, ticks_per_day: int):
     return lambda: min(1, max(0, 1 / (ticks_per_day * days_per_event)))

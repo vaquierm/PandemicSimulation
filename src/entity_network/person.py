@@ -4,6 +4,8 @@ import enum
 import numpy as np
 import random
 
+from src.triggers.testing_trigger import TestingTrigger
+
 
 class PersonState(enum.Enum):
     # Indicates the health state of the person
@@ -11,6 +13,8 @@ class PersonState(enum.Enum):
     Incubating = 1
     Sick = 2
     Recovered = 3
+    # Quarantined after testing positive (No more interactions with anyone until recovered)
+    Quarantined = 4
 
 
 class PersonPlace(enum.Enum):
@@ -25,7 +29,9 @@ class PersonPlace(enum.Enum):
 
 class Person:
 
-    def __init__(self, person_id: int, community_id: int, travel_table: np.ndarray, public_place_probability: float, transmit_probability: float, recovery_time: int, incubation_time: int, travel_reduction_factor: float, reduced_public_place_trips_factor: float):
+    def __init__(self, person_id: int, community_id: int, travel_table: np.ndarray, public_place_probability: float,
+                 transmit_probability: float, recovery_time: int, incubation_time: int, travel_reduction_factor: float,
+                 reduced_public_place_trips_factor: float, time_to_test: int, testing_trigger: TestingTrigger):
         """
         Creates an instance of a person
         :param person_id: ID of the person
@@ -37,6 +43,8 @@ class Person:
         :param incubation_time: Time in simulation ticks for incubation period
         :param travel_reduction_factor: Factor by which this person reduces their travel if a travel restriction is put in place
         :param reduced_public_place_trips_factor: Factor by which the person reduces their trips to public places
+        :param time_to_test: Time in ticks that need to pass for the person to get tested and go into quarantine
+        :param testing_trigger: Trigger indicating if testing and quarantine is happening or not
         """
         self.id = person_id
         self.community_id = community_id
@@ -53,6 +61,8 @@ class Person:
         self.infection_count = 0
         self.travel_reduction_factor = travel_reduction_factor
         self.reduced_public_place_trips_factor = reduced_public_place_trips_factor
+        self.time_to_test = time_to_test
+        self.testing_trigger = testing_trigger
 
     def tick(self):
         """
@@ -71,6 +81,8 @@ class Person:
         """
         if self.sick_time > self.recovery_time + self.incubation_time:
             return PersonState.Recovered
+        elif (self.testing_trigger is not None) and self.testing_trigger.enabled and self.time_to_test >= 0 and self.sick_time > self.incubation_time + self.time_to_test:
+            return PersonState.Quarantined
         elif self.sick_time > self.incubation_time:
             return PersonState.Sick
         elif self.sick_time >= 0:
@@ -116,4 +128,3 @@ class Person:
             weights[weights.argmax()] = -1
 
         return weights.argmax()
-
