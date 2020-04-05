@@ -17,7 +17,8 @@ class Simulation:
             PersonState.Sick: [],
             PersonState.Recovered: [],
             'new_cases': [],
-            'average_new_cases': []
+            'average_new_cases': [],
+            'Social distancing': {'enable': [], 'disable': []}
         }
 
         simulation_done = False
@@ -25,23 +26,17 @@ class Simulation:
             if self.current_tick % self.ticks_per_day == 0:
                 print("Day", int(self.current_tick/self.ticks_per_day))
                 proportions = self.communities.get_proportions()
-                result[PersonState.Healthy].append(proportions[PersonState.Healthy])
-                result[PersonState.Incubating].append(proportions[PersonState.Incubating])
-                result[PersonState.Sick].append(proportions[PersonState.Sick])
-                result[PersonState.Recovered].append(proportions[PersonState.Recovered])
-                result['new_cases'].append(self.communities.new_cases / self.communities.n_people)
 
-                average_new_cases = 0
-                n = 0
-                for i in range(max(0, int(self.current_tick/self.ticks_per_day) - 7), int(self.current_tick/self.ticks_per_day)):
-                    n += 1
-                    average_new_cases += result['new_cases'][i]
-                if n != 0:
-                    average_new_cases /= n
-                result['average_new_cases'].append(average_new_cases)
+                # Add today's results to the general results
+                self.__update_day_results(proportions, result)
 
+                # Reset the new cases in the community
                 self.communities.new_cases = 0
 
+                # Check if any of the triggers must be enabled
+                self.__check_triggers(proportions, result, int(self.current_tick/self.ticks_per_day))
+
+                # Check if the simulation should end
                 if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 0:
                     simulation_done = True
 
@@ -51,6 +46,34 @@ class Simulation:
         result['R'] = self.__calculate_reproductive_rate()
 
         return result
+
+    def __check_triggers(self, proportions, result, day):
+        p_infected = proportions[PersonState.Sick]
+        # Check if social distancing must be triggered
+        if self.communities.social_dist_trigger is not None:
+            if (not self.communities.social_dist_trigger.enabled) and p_infected > self.communities.social_dist_trigger.enable_at():
+                self.communities.social_dist_trigger.enable()
+                result['Social distancing']['enable'].append(day)
+            elif self.communities.social_dist_trigger.enabled and p_infected < self.communities.social_dist_trigger.disable_at():
+                self.communities.social_dist_trigger.disable()
+                result['Social distancing']['disable'].append(day)
+
+    def __update_day_results(self, proportions, result):
+        result[PersonState.Healthy].append(proportions[PersonState.Healthy])
+        result[PersonState.Incubating].append(proportions[PersonState.Incubating])
+        result[PersonState.Sick].append(proportions[PersonState.Sick])
+        result[PersonState.Recovered].append(proportions[PersonState.Recovered])
+        result['new_cases'].append(self.communities.new_cases / self.communities.n_people)
+
+        average_new_cases = 0
+        n = 0
+        for i in range(max(0, int(self.current_tick / self.ticks_per_day) - 7),
+                       int(self.current_tick / self.ticks_per_day)):
+            n += 1
+            average_new_cases += result['new_cases'][i]
+        if n != 0:
+            average_new_cases /= n
+        result['average_new_cases'].append(average_new_cases)
 
     def __calculate_reproductive_rate(self):
         total_days = int(self.current_tick / self.ticks_per_day) + 1
