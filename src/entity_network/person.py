@@ -41,20 +41,21 @@ class Person:
         self.travel_table = travel_table
         self.travel_probability = travel_table.sum()
         self.public_place_probability = public_place_probability
-        self.__sick_time = -1
+        self.sick_time = -1
         self.transmit_prob = transmit_probability
         self.recovery_time = recovery_time
         self.incubation_time = incubation_time
         self.place = PersonPlace.Regular
         self.time_in_place_remaining = -1
         self.travel_source = False
+        self.infection_count = 0
 
     def tick(self):
         """
         Advance the simulation for this person by one tick
         """
-        if self.__sick_time >= 0:
-            self.__sick_time += 1
+        if self.sick_time >= 0:
+            self.sick_time += 1
 
         if self.time_in_place_remaining >= 0:
             self.time_in_place_remaining -= 1
@@ -64,11 +65,11 @@ class Person:
         Gets the infection state of the person
         :return: PersonState of this person
         """
-        if self.__sick_time > self.recovery_time + self.incubation_time:
+        if self.sick_time > self.recovery_time + self.incubation_time:
             return PersonState.Recovered
-        elif self.__sick_time > self.incubation_time:
+        elif self.sick_time > self.incubation_time:
             return PersonState.Sick
-        elif self.__sick_time >= 0:
+        elif self.sick_time >= 0:
             return PersonState.Incubating
         else:
             return PersonState.Healthy
@@ -94,7 +95,7 @@ class Person:
             raise Exception("Cannot infect a person that is in state: " + str(self.get_state()))
 
         # Set the sick tick counter to 0
-        self.__sick_time = 0
+        self.sick_time = 0
 
     def travel(self):
         """

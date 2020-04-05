@@ -19,9 +19,16 @@ def plot_simulation_results(results: dict):
     plt.ylabel('Percentage of population')
     plt.show()
 
-    plt.plot(range(len(results[PersonState.Healthy])), results['average_new_cases'], color='firebrick', linewidth=3, label='Average new cases over 7 days')
+    plt.plot(range(len(results[PersonState.Healthy])), results['average_new_cases'], color='firebrick', linewidth=3, label='Average new cases over last 7 days')
     plt.plot(range(len(results[PersonState.Healthy])), results['new_cases'], color='lightcoral', alpha=0.5, linewidth=1, label='New cases')
     plt.legend(loc='upper right')
     plt.xlabel('Days')
     plt.ylabel('New cases in percentage of total population')
+    plt.show()
+
+    plt.plot(range(len(results[PersonState.Healthy])), results['R'], color='firebrick', linewidth=3, label='R')
+    plt.plot(range(len(results[PersonState.Healthy])), [1 for _ in range(len(results[PersonState.Healthy]))], color='seagreen', linestyle='--', linewidth=2, label='R = 1')
+    plt.legend(loc='upper right')
+    plt.xlabel('Days')
+    plt.ylabel('Effective reproductive number: R')
     plt.show()
