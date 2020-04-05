@@ -21,6 +21,7 @@ def __plot_trigger(results, trigger_name: str):
 def __plot_all_triggers(results):
     __plot_trigger(results, 'Social distancing')
     __plot_trigger(results, 'Travel restrictions')
+    __plot_trigger(results, 'Reduced public place trips')
     _, y_max = plt.gca().get_ylim()
     if 1 < y_max < 1.1:
         y_max = 1

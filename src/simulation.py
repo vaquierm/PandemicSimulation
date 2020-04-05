@@ -21,6 +21,7 @@ class Simulation:
             'average_new_cases': [],
             'Social distancing': {'enable': [], 'disable': []},
             'Travel restrictions': {'enable': [], 'disable': []},
+            'Reduced public place trips': {'enable': [], 'disable': []},
             'First infections': []
         }
 
@@ -75,6 +76,15 @@ class Simulation:
                 if i not in infection_free:
                     result['First infections'].append((i, day))
             self.infection_free_communities = infection_free
+
+        # Check reduction in public place visits must be enabled
+        if self.communities.reduced_public_place_trips_trigger is not None:
+            if (not self.communities.reduced_public_place_trips_trigger.enabled) and p_infected > self.communities.reduced_public_place_trips_trigger.enable_at():
+                self.communities.reduced_public_place_trips_trigger.enable()
+                result['Reduced public place trips']['enable'].append(day)
+            elif self.communities.reduced_public_place_trips_trigger.enabled and p_infected < self.communities.reduced_public_place_trips_trigger.disable_at():
+                self.communities.reduced_public_place_trips_trigger.disable()
+                result['Reduced public place trips']['disable'].append(day)
 
     def __update_day_results(self, proportions, result):
         result[PersonState.Healthy].append(proportions[PersonState.Healthy])
