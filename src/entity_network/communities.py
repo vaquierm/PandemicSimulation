@@ -74,9 +74,16 @@ class Communities:
 
         self.interaction_matrix = np.tril(self.interaction_matrix, -1)
 
-        distancing_factor = np.vectorize(lambda x: x / config.social_distancing_trigger.reduction_factor_distribution())
-        self.social_dist_interaction_matrix = distancing_factor(self.interaction_matrix)
+        # Create an alternate social distancing interaction matrix
+        distancing_factor_matrix = np.zeros(self.interaction_matrix.shape)
+        for i in range(self.n_people):
+            dist_factor_i = config.social_distancing_trigger.reduction_factor_distribution()
+            distancing_factor_matrix[i, :] = dist_factor_i
+        distancing_factor_matrix = (distancing_factor_matrix + distancing_factor_matrix.T) / 2
 
+        self.social_dist_interaction_matrix = self.interaction_matrix / distancing_factor_matrix
+
+        # Define the trigger used for social distancing
         self.social_dist_trigger = config.social_distancing_trigger
 
         self.ticks_per_day = config.ticks_per_day

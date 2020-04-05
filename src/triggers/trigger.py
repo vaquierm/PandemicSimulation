@@ -7,8 +7,8 @@ class EventTrigger:
     def __init__(self, start_percentages: list, end_percentages: list, reduction_factor_distribution: float):
         """
         Creates an instance of Event trigger
-        :param start_percentages: List of percentages of population infected required to reach for the event to trigger
-        :param end_percentages: List of percentages of population infected required to each to disable an event
+        :param start_percentages: List of percentages of population infected (active symptomatic cases) required to reach for the event to trigger
+        :param end_percentages: List of percentages of population infected (active symptomatic cases) required to each to disable an event
         :param reduction_factor_distribution: Factor by which we reduce a metric when the event triggers. For example for social distancing
                                  if this number is 5, we reduce all interactions of people by a factor of 5
                                  This should be a lambda function that returns this number and take nothing as input
