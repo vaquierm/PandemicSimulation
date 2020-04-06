@@ -37,9 +37,14 @@ def plot_simulation_results(results: dict):
     Plot the results of the simulation
     :param results: Simulation results dictionary returned by the start method of the simulation
     """
-    data = [results[PersonState.Quarantined], results[PersonState.Sick], results[PersonState.Incubating], results[PersonState.Healthy], results[PersonState.Recovered]]
-    labels = ['Quarantined', 'Symptomatic', 'Asymptomatic', 'Healthy', 'Recovered']
-    colors = ['lightpink', 'firebrick', 'darkorange', 'steelblue', 'darkgrey']
+    data = [results[PersonState.Sick], results[PersonState.Incubating], results[PersonState.Healthy], results[PersonState.Recovered]]
+    labels = ['Symptomatic', 'Asymptomatic', 'Healthy', 'Recovered']
+    colors = ['firebrick', 'darkorange', 'steelblue', 'darkgrey']
+
+    if sum(results[PersonState.Quarantined]) > 0:
+        data.insert(0, results[PersonState.Quarantined])
+        labels.insert(0, 'Quarantined')
+        colors.insert(0, 'lightpink')
 
     plt.stackplot(range(len(results[PersonState.Healthy])), data,
                   labels=labels,
