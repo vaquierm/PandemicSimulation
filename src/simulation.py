@@ -30,7 +30,6 @@ class Simulation:
         simulation_done = False
         while not simulation_done:
             if self.current_tick % self.ticks_per_day == 0:
-                print("Day", int(self.current_tick/self.ticks_per_day))
                 proportions = self.communities.get_proportions()
 
                 # Add today's results to the general results

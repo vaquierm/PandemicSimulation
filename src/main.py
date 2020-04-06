@@ -2,6 +2,7 @@ from src.config import Config
 from src.simulation import Simulation
 import src.prob_distribution as dist
 from src.visualization import plot_simulation_results
+from src.resuts import print_result_summary
 from src.triggers.reduction_trigger import ReductionEventTrigger
 from src.triggers.testing_trigger import TestingTrigger
 
@@ -18,7 +19,7 @@ if __name__ == '__main__':
                     public_place_time_distribution=dist.gaussian_time_in_ticks(1, 0.2),
                     #social_distancing_trigger=ReductionEventTrigger([0.1], [], dist.gaussian(5, 1)),
                     reduced_public_place_trips_trigger=None,  #ReductionEventTrigger([0.05], [], dist.multi_dist([dist.gaussian(5, 1), dist.constant(5)], [0.8, 0.2]))
-                    testing_trigger=TestingTrigger([0.05], [],
+                    testing_trigger=TestingTrigger([0.1], [],
                                                    time_to_test_distribution=dist.gaussian_time_in_days(2, 0.5, ticks_per_day),
                                                    unsuccessful_test_prob_distribution=dist.gaussian_prob(0.1, 0.05)
                                                    )
@@ -31,3 +32,6 @@ if __name__ == '__main__':
 
     # Plot the results
     plot_simulation_results(results=sim_results)
+
+    # Print Results
+    print_result_summary(sim_results)
