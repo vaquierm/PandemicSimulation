@@ -4,14 +4,11 @@
 
 class EventTrigger:
 
-    def __init__(self, start_percentages: list, end_percentages: list, reduction_factor_distribution: float):
+    def __init__(self, start_percentages: list, end_percentages: list):
         """
         Creates an instance of Event trigger
         :param start_percentages: List of percentages of population infected (active symptomatic cases) required to reach for the event to trigger
         :param end_percentages: List of percentages of population infected (active symptomatic cases) required to each to disable an event
-        :param reduction_factor_distribution: Factor by which we reduce a metric when the event triggers. For example for social distancing
-                                 if this number is 5, we reduce all interactions of people by a factor of 5
-                                 This should be a lambda function that returns this number and take nothing as input
         """
         if len(start_percentages) != len(end_percentages) or len(start_percentages) != len(end_percentages) + 1:
             Exception("The length of trigger start must be equal to or on greater than the length of trigger end")
@@ -24,9 +21,7 @@ class EventTrigger:
                 Exception("The end trigger percentages must be numbers between 0 and 1")
         self.start_percentages = start_percentages
         self.end_percentages = end_percentages
-        self.reduction_factor_distribution = reduction_factor_distribution
-        if type(lambda: 0) != type(reduction_factor_distribution):
-            raise Exception("The reduction factor distribution must be a lambda")
+
         self.enabled = False
         self.trigger_cooldown = 3
 
@@ -71,3 +66,4 @@ class EventTrigger:
         self.enabled = False
         self.trigger_cooldown = 2
         self.end_percentages.pop(0)
+

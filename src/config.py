@@ -1,5 +1,6 @@
 # This file contains the Simulation configuration class which contains all data to start a simulation
-from src.triggers.trigger import EventTrigger
+from src.triggers.reduction_trigger import ReductionEventTrigger
+from src.triggers.testing_trigger import TestingTrigger
 
 
 class Config:
@@ -14,9 +15,10 @@ class Config:
                  incubation_time_distribution,
                  public_place_prob_distribution,
                  public_place_time_distribution,
-                 social_distancing_trigger: EventTrigger = None,
-                 travel_restrictions_trigger: EventTrigger = None,
-                 reduced_public_place_trips_trigger: EventTrigger = None
+                 social_distancing_trigger: ReductionEventTrigger = None,
+                 travel_restrictions_trigger: ReductionEventTrigger = None,
+                 reduced_public_place_trips_trigger: ReductionEventTrigger = None,
+                 testing_trigger: TestingTrigger = None
                  ):
         if ticks_per_day <= 0:
             raise Exception("There must be at least 1 tick per day")
@@ -52,3 +54,4 @@ class Config:
         self.social_distancing_trigger = social_distancing_trigger
         self.travel_restrictions_trigger = travel_restrictions_trigger
         self.reduced_public_place_trips_trigger = reduced_public_place_trips_trigger
+        self.testing_trigger = testing_trigger
