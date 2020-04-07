@@ -8,7 +8,7 @@ class Config:
     def __init__(self,
                  ticks_per_day: float,
                  number_of_communities: int,
-                 people_per_communities: int,
+                 people_per_community: int,
                  transmit_prob_distribution,
                  travel_prob_distribution,
                  recovery_time_distribution,
@@ -25,10 +25,10 @@ class Config:
         self.ticks_per_day = ticks_per_day
         if number_of_communities <= 0:
             raise Exception("The number of communities must be at least 1")
-        if number_of_communities * people_per_communities < 200:
+        if number_of_communities * people_per_community < 200:
             raise Exception("The simulation must run with more than 200 people.")
         self.number_of_communities = number_of_communities
-        self.people_per_communities = people_per_communities
+        self.people_per_communities = people_per_community
 
         # Distributions
         if type(lambda: 0) != type(transmit_prob_distribution):

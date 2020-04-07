@@ -42,7 +42,7 @@ class Simulation:
                 self.__check_triggers(proportions, result, int(self.current_tick/self.ticks_per_day))
 
                 # Check if the simulation should end
-                if proportions[PersonState.Incubating] + proportions[PersonState.Sick] == 0:
+                if proportions[PersonState.Incubating] + proportions[PersonState.Sick] + proportions[PersonState.Quarantined] == 0:
                     simulation_done = True
 
             self.communities.tick()
