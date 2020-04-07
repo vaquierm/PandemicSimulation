@@ -1,5 +1,7 @@
 # This file contains the functions to visualize the simulation results
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
+import numpy as np
 
 from src.entity_network.person import PersonState
 
@@ -53,6 +55,7 @@ def plot_simulation_results(results: dict):
     plt.xlabel('Days')
     plt.ylabel('Percentage of population')
     __plot_all_triggers(results)
+    plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
     plt.show()
 
     plt.plot(range(len(results[PersonState.Healthy])), results['average_new_cases'], color='firebrick', linewidth=3, label='Average new cases over last 7 days')
@@ -61,6 +64,7 @@ def plot_simulation_results(results: dict):
     plt.xlabel('Days')
     plt.ylabel('New cases in percentage of total population')
     __plot_all_triggers(results)
+    plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
     plt.show()
 
     plt.plot(range(len(results[PersonState.Healthy])), results['R'], color='firebrick', linewidth=3, label='R')
@@ -70,3 +74,15 @@ def plot_simulation_results(results: dict):
     plt.ylabel('Effective reproductive number: R')
     __plot_all_triggers(results)
     plt.show()
+
+
+def plot_distribution(dist, metric, bins=20):
+    N = 5000
+    arr = np.array([dist() for _ in range(N)])
+    plt.hist(arr, bins=bins, weights=np.ones(N) / N, color='steelblue')
+    plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+    plt.ylabel('Percentage of total population')
+    plt.xlabel(metric)
+    plt.title('Proportions of ' + metric)
+    plt.show()
+
