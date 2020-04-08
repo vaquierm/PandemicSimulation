@@ -109,4 +109,8 @@ On the left, we enable travel restrictions too late, and on the right, we enable
 ### All Policies
 
 When all policies are enabled at the same time, we get some promising results where only about 20% of the population get infected compared to the 95% if nothing was done. Again, keep in mind that these are very small-scale simulations and that in reality, with much more people, these pandemics could last much longer since the population does not get saturated of immune people as fast. Also "___real world___" situations are much more complex.
-
+<p float="left" align="center">
+  <img src="img/everything_1.png" width="350" />
+  <img src="img/everything_2.png" width="220" /> 
+  <img src="img/everything_3.png" width="220" />
+</p>
