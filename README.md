@@ -5,7 +5,7 @@ All results are graphed, and important metrics reported.
 
 This simulation was inspired by Grant Sanderson's [youtube video](https://www.youtube.com/watch?v=gxAaO2rsdIs&t=) from the channel [3Blue1Brown](https://www.3blue1brown.com/) with modifications that I wanted to explore.
 
-**Disclaimer: ** I am not an epidemiologist in any way, the observations that I make from these simulations might not be accurate in "__real life__". This project is more intended to see how changing some parameters can affect the spread of the infection in this controlled simulated environment. (Real world is just way too complex)
+**Disclaimer:** I am not an epidemiologist in any way, the observations that I make from these simulations might not be accurate in "___real life___". This project is more intended to see how changing some parameters can affect the spread of the infection in this controlled simulated environment. (Real world is just way too complex)
 
 ## The Simulation Setup
 
@@ -31,7 +31,7 @@ The basic parameters that can be configured in the simulation are:
 - The frequency of travel between communities
 - The frequency and time spent on trips to public places
 
-**Note: ** all these parameters can be highly customized such as "80% of the population will travel between communities on average every 40 days with a standard deviation of 10 days and the remaining 20% of the population never travel"
+**Note:** all these parameters can be highly customized such as "80% of the population will travel between communities on average every 40 days with a standard deviation of 10 days and the remaining 20% of the population never travel"
 
 ### Policies
 
@@ -108,5 +108,5 @@ On the left, we enable travel restrictions too late, and on the right, we enable
 
 ### All Policies
 
-When all policies are enabled at the same time, we get some promising results where only about 20% of the population get infected compared to the 95% if nothing was done. Again, keep in mind that these are very small-scale simulations and that in reality, with much more people, these pandemics could last much longer since the population does not get saturated of immune people as fast. Also "__real world__" situations are much more complex.
+When all policies are enabled at the same time, we get some promising results where only about 20% of the population get infected compared to the 95% if nothing was done. Again, keep in mind that these are very small-scale simulations and that in reality, with much more people, these pandemics could last much longer since the population does not get saturated of immune people as fast. Also "___real world___" situations are much more complex.
 
